@@ -9,8 +9,15 @@
 <body>
   <div class="container">
     <header class="header">
-      <h1>WWM Redeem Codes</h1>
-      <p class="subtitle">Track and redeem game codes</p>
+      <h1>Where Winds Meet - Redeemable Codes Vault</h1>
+      <p class="subtitle">Tool to help you discover redeemable codes for Where Winds Meet, and track the ones you've already redeemed.</p>
+      <div class="contribute-info">
+        <p>Want to contribute a code that isn’t listed yet? Feel free to reach out:</p>
+        <ul>
+          <li>Discord tag: <code>kucinghitam</code></li>
+          <li>WWM username <code>Chronecko</code> (ID <code>4042261588</code>)</li>
+        </ul>
+      </div>
     </header>
 
     <div id="error-banner" class="error-banner" hidden></div>
@@ -31,6 +38,17 @@
     </div>
 
     <div class="toolbar">
+      <label class="search-wrap" for="code-search">
+        <span class="search-label">Search</span>
+        <input
+          type="search"
+          id="code-search"
+          class="search-input"
+          placeholder="Search by code…"
+          autocomplete="off"
+          spellcheck="false"
+        >
+      </label>
       <div class="filter-tabs" role="tablist" aria-label="Filter codes">
         <button type="button" class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
         <button type="button" class="filter-tab" data-filter="unredeemed" role="tab" aria-selected="false">Unredeemed</button>

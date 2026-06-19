@@ -8,6 +8,7 @@
   let allCodes = [];
   let currentFilter = 'all';
   let currentPage = 1;
+  let searchQuery = '';
 
   const els = {
     body: document.getElementById('codes-body'),
@@ -21,6 +22,7 @@
     errorBanner: document.getElementById('error-banner'),
     toast: document.getElementById('toast'),
     filterTabs: document.querySelectorAll('.filter-tab'),
+    searchInput: document.getElementById('code-search'),
   };
 
   function getRedeemedSet() {
@@ -75,10 +77,13 @@
   }
 
   function getFilteredCodes(redeemedSet) {
+    const query = searchQuery.trim().toLowerCase();
+
     return allCodes.filter((row) => {
       const isRedeemed = redeemedSet.has(row.code);
-      if (currentFilter === 'redeemed') return isRedeemed;
-      if (currentFilter === 'unredeemed') return !isRedeemed;
+      if (currentFilter === 'redeemed' && !isRedeemed) return false;
+      if (currentFilter === 'unredeemed' && isRedeemed) return false;
+      if (query && !row.code.toLowerCase().includes(query)) return false;
       return true;
     });
   }
@@ -142,7 +147,9 @@
       td.colSpan = 3;
       td.className = 'empty-cell';
       td.textContent = filtered.length === 0 && allCodes.length > 0
-        ? 'No codes match this filter.'
+        ? (searchQuery.trim()
+          ? 'No codes match your search.'
+          : 'No codes match this filter.')
         : 'No codes found.';
       tr.appendChild(td);
       els.body.appendChild(tr);
@@ -230,6 +237,12 @@
       currentPage = 1;
       render();
     });
+  });
+
+  els.searchInput.addEventListener('input', () => {
+    searchQuery = els.searchInput.value;
+    currentPage = 1;
+    render();
   });
 
   loadCodes()
