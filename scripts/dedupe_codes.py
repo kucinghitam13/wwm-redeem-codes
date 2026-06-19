@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove duplicate codes from codes.csv, keeping the earliest occurrence."""
+"""Remove duplicate codes from codes.csv, keeping the earliest occurrence (case-insensitive)."""
 
 import argparse
 import csv
@@ -26,11 +26,12 @@ def dedupe_codes(input_path: Path, output_path: Path | None = None) -> int:
             continue
 
         code = row[0].strip()
-        if code in seen:
+        key = code.casefold()
+        if key in seen:
             removed += 1
             continue
 
-        seen.add(code)
+        seen.add(key)
         unique_rows.append([code])
 
     with output_path.open("w", newline="", encoding="utf-8") as f:
