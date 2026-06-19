@@ -134,7 +134,9 @@ body {
 
 .stat-value-wrap {
   position: relative;
-  display: inline-block;
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .stat-unredeemed.stat-has-alert {
