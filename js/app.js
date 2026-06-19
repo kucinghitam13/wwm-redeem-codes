@@ -165,8 +165,6 @@
         const tdCode = document.createElement('td');
         tdCode.className = 'code-cell' + (isRedeemed ? ' redeemed-code' : '');
         tdCode.textContent = row.code;
-        tdCode.title = 'Click to copy';
-        tdCode.addEventListener('click', () => copyCode(row.code));
 
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');
@@ -175,12 +173,23 @@
         tdStatus.appendChild(badge);
 
         const tdAction = document.createElement('td');
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
-        btn.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
-        btn.addEventListener('click', () => toggleRedeemed(row.code));
-        tdAction.appendChild(btn);
+        tdAction.className = 'action-cell';
+
+        const btnRedeem = document.createElement('button');
+        btnRedeem.type = 'button';
+        btnRedeem.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
+        btnRedeem.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
+        btnRedeem.addEventListener('click', () => toggleRedeemed(row.code));
+
+        const btnCopy = document.createElement('button');
+        btnCopy.type = 'button';
+        btnCopy.className = 'btn btn-copy';
+        btnCopy.textContent = 'Copy';
+        btnCopy.setAttribute('aria-label', 'Copy ' + row.code);
+        btnCopy.addEventListener('click', () => copyCode(row.code));
+
+        tdAction.appendChild(btnRedeem);
+        tdAction.appendChild(btnCopy);
 
         tr.appendChild(tdCode);
         tr.appendChild(tdStatus);

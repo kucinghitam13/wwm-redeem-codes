@@ -256,7 +256,6 @@ body {
   font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
   font-weight: 600;
   letter-spacing: 0.03em;
-  cursor: pointer;
   user-select: all;
 }
 
@@ -264,8 +263,12 @@ body {
   text-decoration: line-through;
 }
 
-.code-cell:hover {
-  color: var(--accent);
+.action-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .loading-cell,
@@ -322,6 +325,18 @@ body {
 .btn-unredeem:hover {
   background: var(--bg);
   color: var(--text);
+}
+
+.btn-copy {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-copy:hover {
+  background: var(--bg);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .pagination {
