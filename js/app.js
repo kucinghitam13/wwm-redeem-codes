@@ -69,7 +69,10 @@
       const rows = parseCSV(await res.text());
 
       for (const row of rows) {
-        map.set(row.code, { code: row.code, order: order++ });
+        if (!map.has(row.code)) {
+          map.set(row.code, { code: row.code, order: order });
+        }
+        order++;
       }
     }
 
