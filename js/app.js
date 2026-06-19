@@ -165,6 +165,8 @@
         const tdCode = document.createElement('td');
         tdCode.className = 'code-cell' + (isRedeemed ? ' redeemed-code' : '');
         tdCode.textContent = row.code;
+        tdCode.title = 'Click to copy';
+        tdCode.addEventListener('click', () => copyCode(row.code));
 
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');

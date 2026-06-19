@@ -238,6 +238,15 @@ body {
   white-space: nowrap;
 }
 
+.col-tip {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
 .codes-table td {
   padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--border);
@@ -256,11 +265,16 @@ body {
   font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
   font-weight: 600;
   letter-spacing: 0.03em;
+  cursor: pointer;
   user-select: all;
 }
 
 .code-cell.redeemed-code {
   text-decoration: line-through;
+}
+
+.code-cell:hover {
+  color: var(--accent);
 }
 
 .action-cell {
