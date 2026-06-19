@@ -45,41 +45,33 @@
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-      if (i === 0 && line.toLowerCase().startsWith('code')) continue;
+      if (i === 0 && line.toLowerCase() === 'code') continue;
 
       const comma = line.indexOf(',');
-      if (comma === -1) continue;
+      const code = (comma === -1 ? line : line.slice(0, comma)).trim().toUpperCase();
+      if (!code) continue;
 
-      const code = line.slice(0, comma).trim().toUpperCase();
-      const addedDate = line.slice(comma + 1).trim();
-      if (!code || !addedDate) continue;
-
-      rows.push({ code, addedDate });
+      rows.push({ code });
     }
 
     return rows;
   }
 
   async function loadCodes() {
-    const responses = await Promise.all(
-      CSV_SOURCES.map(async (src) => {
-        const res = await fetch(src);
-        if (!res.ok) throw new Error('Failed to load ' + src + ' (' + res.status + ')');
-        return parseCSV(await res.text());
-      })
-    );
-
+    let order = 0;
     const map = new Map();
-    for (const rows of responses) {
+
+    for (const src of CSV_SOURCES) {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error('Failed to load ' + src + ' (' + res.status + ')');
+      const rows = parseCSV(await res.text());
+
       for (const row of rows) {
-        const existing = map.get(row.code);
-        if (!existing || row.addedDate > existing.addedDate) {
-          map.set(row.code, row);
-        }
+        map.set(row.code, { code: row.code, order: order++ });
       }
     }
 
-    return [...map.values()].sort((a, b) => b.addedDate.localeCompare(a.addedDate) || a.code.localeCompare(b.code));
+    return [...map.values()].sort((a, b) => b.order - a.order);
   }
 
   function getFilteredCodes(redeemedSet) {
@@ -96,14 +88,6 @@
     els.statTotal.textContent = allCodes.length;
     els.statRedeemed.textContent = redeemedCount;
     els.statUnredeemed.textContent = allCodes.length - redeemedCount;
-  }
-
-  function formatDate(iso) {
-    const parts = iso.split('-');
-    if (parts.length !== 3) return iso;
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const m = parseInt(parts[1], 10);
-    return months[m - 1] + ' ' + parseInt(parts[2], 10) + ', ' + parts[0];
   }
 
   function showToast(message) {
@@ -155,7 +139,7 @@
     if (pageRows.length === 0) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 4;
+      td.colSpan = 3;
       td.className = 'empty-cell';
       td.textContent = filtered.length === 0 && allCodes.length > 0
         ? 'No codes match this filter.'
@@ -174,9 +158,6 @@
         tdCode.title = 'Click to copy';
         tdCode.addEventListener('click', () => copyCode(row.code));
 
-        const tdDate = document.createElement('td');
-        tdDate.textContent = formatDate(row.addedDate);
-
         const tdStatus = document.createElement('td');
         const badge = document.createElement('span');
         badge.className = 'badge ' + (isRedeemed ? 'badge-redeemed' : 'badge-available');
@@ -192,7 +173,6 @@
         tdAction.appendChild(btn);
 
         tr.appendChild(tdCode);
-        tr.appendChild(tdDate);
         tr.appendChild(tdStatus);
         tr.appendChild(tdAction);
         els.body.appendChild(tr);
@@ -211,7 +191,7 @@
     els.body.innerHTML = '';
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 4;
+    td.colSpan = 3;
     td.className = 'empty-cell';
     td.textContent = 'Unable to load codes.';
     tr.appendChild(td);

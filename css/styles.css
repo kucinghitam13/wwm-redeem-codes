@@ -318,9 +318,4 @@ body {
     text-align: center;
     padding: 0.5rem 0.4rem;
   }
-
-  .codes-table th:nth-child(2),
-  .codes-table td:nth-child(2) {
-    display: none;
-  }
 }
