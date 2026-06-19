@@ -277,14 +277,6 @@ body {
   color: var(--accent);
 }
 
-.action-cell {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-
 .loading-cell,
 .empty-cell {
   text-align: center;
@@ -339,18 +331,6 @@ body {
 .btn-unredeem:hover {
   background: var(--bg);
   color: var(--text);
-}
-
-.btn-copy {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-.btn-copy:hover {
-  background: var(--bg);
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .pagination {

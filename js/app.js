@@ -175,23 +175,12 @@
         tdStatus.appendChild(badge);
 
         const tdAction = document.createElement('td');
-        tdAction.className = 'action-cell';
-
         const btnRedeem = document.createElement('button');
         btnRedeem.type = 'button';
         btnRedeem.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
         btnRedeem.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
         btnRedeem.addEventListener('click', () => toggleRedeemed(row.code));
-
-        const btnCopy = document.createElement('button');
-        btnCopy.type = 'button';
-        btnCopy.className = 'btn btn-copy';
-        btnCopy.textContent = 'Copy';
-        btnCopy.setAttribute('aria-label', 'Copy ' + row.code);
-        btnCopy.addEventListener('click', () => copyCode(row.code));
-
         tdAction.appendChild(btnRedeem);
-        tdAction.appendChild(btnCopy);
 
         tr.appendChild(tdCode);
         tr.appendChild(tdStatus);
