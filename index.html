@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WWM Redeem Codes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>WWM Redeem Codes</h1>
+      <p class="subtitle">Track and redeem game codes</p>
+    </header>
+
+    <div id="error-banner" class="error-banner" hidden></div>
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat">
+        <span class="stat-value" id="stat-total">—</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-unredeemed">—</span>
+        <span class="stat-label">Unredeemed</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="stat-redeemed">—</span>
+        <span class="stat-label">Redeemed</span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="filter-tabs" role="tablist" aria-label="Filter codes">
+        <button type="button" class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button type="button" class="filter-tab" data-filter="unredeemed" role="tab" aria-selected="false">Unredeemed</button>
+        <button type="button" class="filter-tab" data-filter="redeemed" role="tab" aria-selected="false">Redeemed</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="codes-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Added</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="codes-body">
+          <tr>
+            <td colspan="4" class="loading-cell">Loading codes…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination" hidden>
+      <button type="button" class="page-btn" id="btn-prev" disabled>Previous</button>
+      <span class="page-info" id="page-info">Page 1 of 1</span>
+      <button type="button" class="page-btn" id="btn-next" disabled>Next</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden>Copied!</div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
