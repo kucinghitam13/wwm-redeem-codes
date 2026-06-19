@@ -18,6 +18,8 @@
     pageInfo: document.getElementById('page-info'),
     statTotal: document.getElementById('stat-total'),
     statUnredeemed: document.getElementById('stat-unredeemed'),
+    statUnredeemedDot: document.getElementById('stat-unredeemed-dot'),
+    statUnredeemedCard: document.getElementById('stat-unredeemed-card'),
     statRedeemed: document.getElementById('stat-redeemed'),
     errorBanner: document.getElementById('error-banner'),
     toast: document.getElementById('toast'),
@@ -93,9 +95,12 @@
 
   function updateStats(redeemedSet) {
     const redeemedCount = allCodes.filter((r) => redeemedSet.has(r.code)).length;
+    const unredeemedCount = allCodes.length - redeemedCount;
     els.statTotal.textContent = allCodes.length;
     els.statRedeemed.textContent = redeemedCount;
-    els.statUnredeemed.textContent = allCodes.length - redeemedCount;
+    els.statUnredeemed.textContent = unredeemedCount;
+    els.statUnredeemedDot.hidden = unredeemedCount === 0;
+    els.statUnredeemedCard.classList.toggle('stat-has-alert', unredeemedCount > 0);
   }
 
   function showToast(message) {
@@ -230,16 +235,25 @@
 
   els.filterTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      els.filterTabs.forEach((t) => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      currentFilter = tab.dataset.filter;
-      currentPage = 1;
-      render();
+      setFilter(tab.dataset.filter);
     });
+  });
+
+  function setFilter(filter) {
+    els.filterTabs.forEach((t) => {
+      const active = t.dataset.filter === filter;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    currentFilter = filter;
+    currentPage = 1;
+    render();
+  }
+
+  els.statUnredeemedCard.addEventListener('click', () => {
+    if (els.statUnredeemedCard.classList.contains('stat-has-alert')) {
+      setFilter('unredeemed');
+    }
   });
 
   els.searchInput.addEventListener('input', () => {

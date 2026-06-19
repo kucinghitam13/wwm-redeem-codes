@@ -132,6 +132,42 @@ body {
   line-height: 1.2;
 }
 
+.stat-value-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.stat-unredeemed.stat-has-alert {
+  cursor: pointer;
+}
+
+.stat-unredeemed.stat-has-alert:hover {
+  border-color: var(--danger);
+}
+
+.stat-dot {
+  position: absolute;
+  top: 0;
+  right: -0.55rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 0 2px var(--surface);
+  animation: stat-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes stat-dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.75;
+  }
+}
+
 .stat-label {
   font-size: 0.8rem;
   color: var(--text-muted);
