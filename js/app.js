@@ -25,7 +25,10 @@
     toast: document.getElementById('toast'),
     filterTabs: document.querySelectorAll('.filter-tab'),
     searchInput: document.getElementById('code-search'),
+    searchLegend: document.getElementById('search-legend'),
   };
+
+  const codeIndex = new Map();
 
   function getRedeemedSet() {
     try {
@@ -81,9 +84,44 @@
     return [...map.values()].sort((a, b) => b.order - a.order);
   }
 
-  function getFilteredCodes(redeemedSet) {
-    const query = searchQuery.trim().toLowerCase();
+  function rebuildCodeIndex() {
+    codeIndex.clear();
+    for (const row of allCodes) {
+      codeIndex.set(row.code, row);
+    }
+  }
 
+  function parseSearch() {
+    if (!searchQuery.includes('\n')) {
+      return { mode: 'filter', query: searchQuery.trim().toLowerCase() };
+    }
+    const terms = searchQuery
+      .split(/\r?\n/)
+      .map((s) => s.trim().toUpperCase())
+      .filter(Boolean);
+    return { mode: 'batch', terms };
+  }
+
+  function resolveBatchResults(terms, redeemedSet) {
+    return terms.map((term) => {
+      const existing = codeIndex.get(term);
+      if (!existing) {
+        return { code: term, batchStatus: 'missing' };
+      }
+      return {
+        code: term,
+        batchStatus: redeemedSet.has(term) ? 'redeemed' : 'available',
+      };
+    });
+  }
+
+  function getFilteredCodes(redeemedSet) {
+    const search = parseSearch();
+    if (search.mode === 'batch') {
+      return resolveBatchResults(search.terms, redeemedSet);
+    }
+
+    const query = search.query;
     return allCodes.filter((row) => {
       const isRedeemed = redeemedSet.has(row.code);
       if (currentFilter === 'redeemed' && !isRedeemed) return false;
@@ -91,6 +129,10 @@
       if (query && !row.code.toLowerCase().includes(query)) return false;
       return true;
     });
+  }
+
+  function isBatchMode() {
+    return parseSearch().mode === 'batch';
   }
 
   function updateStats(redeemedSet) {
@@ -134,18 +176,102 @@
     render();
   }
 
+  function renderBatchRow(row, redeemedSet) {
+    const tr = document.createElement('tr');
+    const isRedeemed = row.batchStatus === 'redeemed';
+    const isMissing = row.batchStatus === 'missing';
+
+    if (isMissing) tr.classList.add('row-missing');
+    else if (isRedeemed) tr.classList.add('row-redeemed-batch');
+    else tr.classList.add('row-available');
+
+    const tdCode = document.createElement('td');
+    tdCode.className = 'code-cell' + (isRedeemed ? ' redeemed-code' : '');
+    tdCode.textContent = row.code;
+    tdCode.title = 'Click to copy';
+    tdCode.addEventListener('click', () => copyCode(row.code));
+
+    const tdStatus = document.createElement('td');
+    const badge = document.createElement('span');
+    if (isMissing) {
+      badge.className = 'badge badge-missing';
+      badge.textContent = 'Not listed';
+    } else if (isRedeemed) {
+      badge.className = 'badge badge-redeemed';
+      badge.textContent = 'Redeemed';
+    } else {
+      badge.className = 'badge badge-available';
+      badge.textContent = 'Available';
+    }
+    tdStatus.appendChild(badge);
+
+    const tdAction = document.createElement('td');
+    if (!isMissing) {
+      const btnRedeem = document.createElement('button');
+      btnRedeem.type = 'button';
+      btnRedeem.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
+      btnRedeem.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
+      btnRedeem.addEventListener('click', () => toggleRedeemed(row.code));
+      tdAction.appendChild(btnRedeem);
+    } else {
+      tdAction.textContent = '—';
+      tdAction.className = 'action-empty';
+    }
+
+    tr.appendChild(tdCode);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdAction);
+    return tr;
+  }
+
+  function renderListRow(row, redeemedSet) {
+    const isRedeemed = redeemedSet.has(row.code);
+    const tr = document.createElement('tr');
+    if (isRedeemed) tr.classList.add('redeemed');
+
+    const tdCode = document.createElement('td');
+    tdCode.className = 'code-cell' + (isRedeemed ? ' redeemed-code' : '');
+    tdCode.textContent = row.code;
+    tdCode.title = 'Click to copy';
+    tdCode.addEventListener('click', () => copyCode(row.code));
+
+    const tdStatus = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = 'badge ' + (isRedeemed ? 'badge-redeemed' : 'badge-available');
+    badge.textContent = isRedeemed ? 'Redeemed' : 'Available';
+    tdStatus.appendChild(badge);
+
+    const tdAction = document.createElement('td');
+    const btnRedeem = document.createElement('button');
+    btnRedeem.type = 'button';
+    btnRedeem.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
+    btnRedeem.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
+    btnRedeem.addEventListener('click', () => toggleRedeemed(row.code));
+    tdAction.appendChild(btnRedeem);
+
+    tr.appendChild(tdCode);
+    tr.appendChild(tdStatus);
+    tr.appendChild(tdAction);
+    return tr;
+  }
+
   function render() {
     const redeemedSet = getRedeemedSet();
     updateStats(redeemedSet);
 
+    const batch = isBatchMode();
+    els.searchLegend.hidden = !batch;
+
     const filtered = getFilteredCodes(redeemedSet);
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    let pageRows = filtered;
 
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const pageRows = filtered.slice(start, start + PAGE_SIZE);
+    if (!batch) {
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+      const start = (currentPage - 1) * PAGE_SIZE;
+      pageRows = filtered.slice(start, start + PAGE_SIZE);
+    }
 
     els.body.innerHTML = '';
 
@@ -154,50 +280,30 @@
       const td = document.createElement('td');
       td.colSpan = 3;
       td.className = 'empty-cell';
-      td.textContent = filtered.length === 0 && allCodes.length > 0
-        ? (searchQuery.trim()
-          ? 'No codes match your search.'
-          : 'No codes match this filter.')
-        : 'No codes found.';
+      td.textContent = batch
+        ? 'Enter one code per line to check multiple codes.'
+        : filtered.length === 0 && allCodes.length > 0
+          ? (searchQuery.trim()
+            ? 'No codes match your search.'
+            : 'No codes match this filter.')
+          : 'No codes found.';
       tr.appendChild(td);
       els.body.appendChild(tr);
     } else {
       for (const row of pageRows) {
-        const isRedeemed = redeemedSet.has(row.code);
-        const tr = document.createElement('tr');
-        if (isRedeemed) tr.classList.add('redeemed');
-
-        const tdCode = document.createElement('td');
-        tdCode.className = 'code-cell' + (isRedeemed ? ' redeemed-code' : '');
-        tdCode.textContent = row.code;
-        tdCode.title = 'Click to copy';
-        tdCode.addEventListener('click', () => copyCode(row.code));
-
-        const tdStatus = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = 'badge ' + (isRedeemed ? 'badge-redeemed' : 'badge-available');
-        badge.textContent = isRedeemed ? 'Redeemed' : 'Available';
-        tdStatus.appendChild(badge);
-
-        const tdAction = document.createElement('td');
-        const btnRedeem = document.createElement('button');
-        btnRedeem.type = 'button';
-        btnRedeem.className = 'btn ' + (isRedeemed ? 'btn-unredeem' : 'btn-redeem');
-        btnRedeem.textContent = isRedeemed ? 'Unredeem' : 'Mark redeemed';
-        btnRedeem.addEventListener('click', () => toggleRedeemed(row.code));
-        tdAction.appendChild(btnRedeem);
-
-        tr.appendChild(tdCode);
-        tr.appendChild(tdStatus);
-        tr.appendChild(tdAction);
-        els.body.appendChild(tr);
+        els.body.appendChild(batch ? renderBatchRow(row, redeemedSet) : renderListRow(row, redeemedSet));
       }
     }
 
-    els.pagination.hidden = filtered.length === 0;
-    els.pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
-    els.btnPrev.disabled = currentPage <= 1;
-    els.btnNext.disabled = currentPage >= totalPages;
+    if (batch) {
+      els.pagination.hidden = true;
+    } else {
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      els.pagination.hidden = filtered.length === 0;
+      els.pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+      els.btnPrev.disabled = currentPage <= 1;
+      els.btnNext.disabled = currentPage >= totalPages;
+    }
   }
 
   function showError(message) {
@@ -256,15 +362,22 @@
     }
   });
 
+  function autoResizeSearch() {
+    els.searchInput.style.height = 'auto';
+    els.searchInput.style.height = Math.min(els.searchInput.scrollHeight, 160) + 'px';
+  }
+
   els.searchInput.addEventListener('input', () => {
     searchQuery = els.searchInput.value;
     currentPage = 1;
+    autoResizeSearch();
     render();
   });
 
   loadCodes()
     .then((codes) => {
       allCodes = codes;
+      rebuildCodeIndex();
       render();
     })
     .catch((err) => {

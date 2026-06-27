@@ -207,8 +207,46 @@ body {
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
-  font-size: 0.9rem;
+  font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
   box-shadow: var(--shadow);
+  resize: vertical;
+  min-height: 2.5rem;
+  max-height: 10rem;
+}
+
+.search-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legend-item::before {
+  content: "";
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-missing::before,
+.legend-available::before {
+  background: var(--success-bg);
+  border: 1px solid var(--success);
+}
+
+.legend-redeemed::before {
+  background: var(--border);
+  opacity: 0.7;
 }
 
 .search-input::placeholder {
@@ -299,6 +337,32 @@ body {
   opacity: var(--redeemed-opacity);
 }
 
+.codes-table tbody tr.row-missing,
+.codes-table tbody tr.row-available {
+  background: var(--success-bg);
+}
+
+.codes-table tbody tr.row-missing .code-cell,
+.codes-table tbody tr.row-available .code-cell {
+  color: var(--success);
+}
+
+.codes-table tbody tr.row-redeemed-batch {
+  opacity: var(--redeemed-opacity);
+  background: var(--bg);
+}
+
+.codes-table tbody tr.row-redeemed-batch .code-cell {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.badge-missing {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px dashed var(--success);
+}
+
 .code-cell {
   font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
   font-weight: 600;
@@ -369,6 +433,11 @@ body {
 .btn-unredeem:hover {
   background: var(--bg);
   color: var(--text);
+}
+
+.action-empty {
+  color: var(--text-muted);
+  text-align: center;
 }
 
 .pagination {

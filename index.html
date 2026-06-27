@@ -59,15 +59,20 @@
     <div class="toolbar">
       <label class="search-wrap" for="code-search">
         <span class="search-label">Search</span>
-        <input
-          type="search"
+        <textarea
           id="code-search"
           class="search-input"
-          placeholder="Search by code…"
+          rows="1"
+          placeholder="Search by code… (one per line to check multiple)"
           autocomplete="off"
           spellcheck="false"
-        >
+        ></textarea>
       </label>
+      <div class="search-legend" id="search-legend" hidden>
+        <span class="legend-item legend-missing">Not listed</span>
+        <span class="legend-item legend-available">Available</span>
+        <span class="legend-item legend-redeemed">Redeemed</span>
+      </div>
       <div class="filter-tabs" role="tablist" aria-label="Filter codes">
         <button type="button" class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
         <button type="button" class="filter-tab" data-filter="unredeemed" role="tab" aria-selected="false">Unredeemed</button>
